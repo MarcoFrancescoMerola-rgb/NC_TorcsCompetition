@@ -16,7 +16,7 @@ def loadTorcs():
     output = subprocess.run('wtorcs.exe -T -nofuel -nodamage', stdout=subprocess.PIPE, encoding='utf-8').stdout
 
 def loadClient():
-    os.system('python' + directory_project+ 'client.py >nul')
+    os.system('python' + project_dir+ 'client.py >nul')
 
 def evaluate():
     global output
