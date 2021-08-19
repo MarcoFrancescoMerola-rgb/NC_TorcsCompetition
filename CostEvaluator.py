@@ -6,27 +6,31 @@ import os
 import json
 
 output=""
-project_dir = os.path.dirname(os.path.realpath(__file__))+'\\'
+project_dir = os.getcwd()+"/CarSim/"
 torcs_dir = 'E:/Programs/torcs/'
-
 
 def loadTorcs():
     global output
     os.chdir(torcs_dir)
     output = subprocess.run('wtorcs.exe -T -nofuel -nodamage', stdout=subprocess.PIPE, encoding='utf-8').stdout
 
-def loadClient():
-    os.system('python' + project_dir+ 'client.py >nul')
+def loadClient(particle):
+    print('Particles pre Client: ',particle)
+    tmpStr = " "
+    for p in particle:
+        tmpStr += str(p) + " "
 
-def evaluate():
+    os.system('python ' + project_dir+ 'client.py ' + tmpStr)
+
+def evaluate(particle):
     global output
-    client_thread = threading.Thread(target=loadClient)
+    client_thread = threading.Thread(target=loadClient(particle))
     client_thread.start()
     
-    torcs_thread = threading.Thread(target=loadTorcs)
-    torcs_thread.start()
+    # torcs_thread = threading.Thread(target=loadTorcs)
+    # torcs_thread.start()
     
-    torcs_thread.join()
+    #torcs_thread.join()
     client_thread.join()
     
     matches = re.findall("lap.*", output)
@@ -37,9 +41,10 @@ def evaluate():
         fitness = float(matches[0].split(':')[1]) + float(matches[1].split(':')[1])
     return fitness
 
-def evaluteCost(swarm):
+
+def evaluateCostSwarm(swarm):
     fitness = np.zeros((swarm.shape[0],))
-    count =0
+    count = 0
     with open('tmp_params','r') as json_file:
         json_param = json.load(json_file)
     for particle in swarm:
@@ -54,4 +59,12 @@ def evaluteCost(swarm):
         fitness.put(count,temp)
         count += 1
     print("Total fitness array: " + str(fitness))
+
     return fitness
+
+def evaluateCostParticle(particle, paramsName):
+    iterator = zip(paramsName, particle)
+    jsonParams = dict(iterator)
+    with open('tmp_params','w') as json_file:
+        json.dump(jsonParams,json_file)
+    tmp = evaluate(particle)
