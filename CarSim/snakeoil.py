@@ -144,8 +144,8 @@ class Client():
         # == Set Up UDP Socket ==
         try:
             self.so= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except socket.error, emsg:
-            print 'Error: Could not create socket...'
+        except socket.error as emsg:
+            print('Error: Could not create socket...')
             sys.exit(-1)
         # == Initialize Connection To Server ==
         self.so.settimeout(1)
@@ -160,16 +160,17 @@ class Client():
             # xed- Going to try something a lot more aggressive...
             #a= "-16.699244234 -8.53076560995 -5.7105931375 -4.28915332882 -3.43363036245 -2.86240522611 -2.45403167453 -2.1475854283 -1.909152433 0 1.909152433 2.1475854283 2.45403167453 2.86240522611 3.43363036245 4.28915332882 5.7105931375 8.53076560995 16.699244234"
 
-            initmsg='%s(init %s)' % (self.sid,a)
-
+            initmsg= '%s(init %s)' % (self.sid,a)
+            #initmsg = str.encode(initmsg)
             try:
-                self.so.sendto(initmsg, (self.host, self.port))
-            except socket.error, emsg:
+                self.so.sendto(initmsg.encode(), (self.host, self.port))
+            except socket.error as emsg:
                 sys.exit(-1)
             sockdata= str()
             try:
                 sockdata,addr= self.so.recvfrom(1024)
-            except socket.error, emsg:
+                sockdata = sockdata.decode('utf-8')
+            except socket.error as emsg:
                 #print "Waiting for server on %d............" % self.port
                 pass
             if '***identified***' in sockdata:
@@ -182,13 +183,13 @@ class Client():
                        ['host=','port=','id=','steps=',
                         'episodes=','file=','track=','stage=',
                         'debug','help','version'])
-        except getopt.error, why:
-            print 'getopt error: %s\n%s' % (why, usage)
+        except getopt.error as why:
+            print('getopt error: %s\n%s' % (why, usage))
             sys.exit(-1)
         try:
             for opt in opts:
                 if opt[0] == '-h' or opt[0] == '--help':
-                    print usage
+                    print(usage)
                     sys.exit(0)
                 if opt[0] == '-d' or opt[0] == '--debug':
                     self.debug= True
@@ -209,14 +210,14 @@ class Client():
                 if opt[0] == '-m' or opt[0] == '--steps':
                     self.maxSteps= int(opt[1])
                 if opt[0] == '-v' or opt[0] == '--version':
-                    print '%s %s' % (sys.argv[0], version)
+                    print('%s %s' % (sys.argv[0], version))
                     sys.exit(0)
-        except ValueError, why:
-            print 'Bad parameter \'%s\' for option %s: %s\n%s' % (
-                                       opt[1], opt[0], why, usage)
+        except ValueError as why:
+            print( 'Bad parameter \'%s\' for option %s: %s\n%s' % (
+                                       opt[1], opt[0], why, usage))
             sys.exit(-1)
         if len(args) > 0:
-            print 'Superflous input? %s\n%s' % (', '.join(args), usage)
+            print('Superflous input? %s\n%s' % (', '.join(args), usage))
             sys.exit(-1)
 
     def get_servers_input(self):
@@ -227,11 +228,12 @@ class Client():
             try:
                 # Receive server data 
                 sockdata,addr= self.so.recvfrom(1024)
-            except socket.error, emsg:
-                print '.',
+                sockdata = sockdata.decode('utf-8')
+            except socket.error as emsg:
+                print ('.',)
                 #print "Waiting for data on %d.............." % self.port
             if '***identified***' in sockdata:
-                print "Client connected on %d.............." % self.port
+                print( "Client connected on %d.............." % self.port)
                 continue
             elif '***shutdown***' in sockdata:
                 print (("Server has stopped the race on %d. "+
@@ -241,7 +243,7 @@ class Client():
                 return
             elif '***restart***' in sockdata:
                 # What do I do here?
-                print "Server has restarted the race on %d." % self.port
+                print("Server has restarted the race on %d." % self.port)
                 # I haven't actually caught the server doing this.
                 self.shutdown()
                 return
@@ -251,17 +253,17 @@ class Client():
                 self.S.parse_server_str(sockdata)
                 if self.debug:
                     sys.stderr.write("\x1b[2J\x1b[H") # Clear for steady output.
-                    print self.S
+                    print( self.S)
                 break # Can now return from this function.
 
     def respond_to_server(self):
         if not self.so: return
         try:
-            self.so.sendto(repr(self.R), (self.host, self.port))
-        except socket.error, emsg:
-            print "Error sending to server: %s Message %s" % (emsg[1],str(emsg[0]))
+            self.so.sendto(repr(self.R).encode(), (self.host, self.port))
+        except socket.error as emsg:
+            print( "Error sending to server: %s Message %s" % (emsg[1],str(emsg[0])))
             sys.exit(-1)
-        if self.debug: print self.R.fancyout()
+        if self.debug: print( self.R.fancyout())
         # Or use this for plain output:
         #if self.debug: print self.R
 
@@ -504,7 +506,7 @@ def destringify(s):
         try:
             return float(s)
         except ValueError:
-            print "Could not find a value in %s" % s
+            print("Could not find a value in %s" % s)
             return s
     elif type(s) is list:
         if len(s) < 2:

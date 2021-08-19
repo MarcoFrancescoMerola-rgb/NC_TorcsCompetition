@@ -6,16 +6,18 @@ import os
 import json
 
 output=""
-project_dir = os.getcwd()+"/CarSim/"
+project_dir = os.getcwd()+"\\CarSim\\"
+# print(project_dir)
+# exit(0)
 torcs_dir = 'E:/Programs/torcs/'
 
 def loadTorcs():
     global output
     os.chdir(torcs_dir)
-    output = subprocess.run('wtorcs.exe -T -nofuel -nodamage', stdout=subprocess.PIPE, encoding='utf-8').stdout
+    #-T
+    output = subprocess.run('wtorcs.exe -nofuel -nodamage', stdout=subprocess.PIPE, encoding='utf-8').stdout
 
 def loadClient(particle):
-    print('Particles pre Client: ',particle)
     tmpStr = " "
     for p in particle:
         tmpStr += str(p) + " "
@@ -24,13 +26,14 @@ def loadClient(particle):
 
 def evaluate(particle):
     global output
+    
+    torcs_thread = threading.Thread(target=loadTorcs)
+    torcs_thread.start()
+
     client_thread = threading.Thread(target=loadClient(particle))
     client_thread.start()
     
-    # torcs_thread = threading.Thread(target=loadTorcs)
-    # torcs_thread.start()
-    
-    #torcs_thread.join()
+    torcs_thread.join()
     client_thread.join()
     
     matches = re.findall("lap.*", output)
@@ -68,3 +71,5 @@ def evaluateCostParticle(particle, paramsName):
     with open('tmp_params','w') as json_file:
         json.dump(jsonParams,json_file)
     tmp = evaluate(particle)
+    print(tmp)
+    return

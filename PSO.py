@@ -1,4 +1,4 @@
-from os import initgroups
+import os
 import numpy as np
 import pyswarms.backend as p
 from pyswarms.backend.topology import Star

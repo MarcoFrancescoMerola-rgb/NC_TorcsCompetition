@@ -5,5 +5,10 @@ __pycache__/
 
 *.log
 
+.vs/
+.vscode/
+.idea/
+venv/
+tmp_params
 #carsim
 #CarSim/*

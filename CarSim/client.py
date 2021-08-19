@@ -656,22 +656,25 @@ def initialize_car(c):
     R['accel']= .22 
     R['focus']= 0 
     c.respond_to_server() 
+
+
 if __name__ == "__main__":
     T= Track()
     C= snakeoil.Client(f='tmp_params', t=trackName)
-    C.trackname = 
-    C.pfilename =
+    print('-----------------------')
+    print('snakeoils Client inizialized')
+    print('-----------------------')
     if C.stage == 1 or C.stage == 2:
         try:
             T.load_track(C.trackname)
         except:
-            print "Could not load the track: %s" % C.trackname
+            print(f"Could not load the track: {C.trackname}")
             sys.exit()
-        print "Track loaded!"
+        print("Track loaded!")
     initialize_car(C)
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
-    for step in xrange(C.maxSteps,0,-1):
+    for step in range(C.maxSteps,0,-1):
         C.get_servers_input()
         drive(C,step)
         C.respond_to_server()
