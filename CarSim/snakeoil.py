@@ -52,6 +52,7 @@
 # sufficient for getting around most tracks.
 # Try `snakeoil.py --help` to get started.
 
+import os
 import socket 
 import json
 import sys
@@ -113,7 +114,7 @@ def bargraph(x,mn,mx,w,c='X'):
     return '[%s]' % (nnc+npc+ppc+pnc)
 
 class Client():
-    def __init__(self,H=None,p=None,i=None,e=None,t=None,s=None,d=None,f=None):
+    def __init__(self,H=None,p=None,i=None,e=None,t=None,s=None,d=None,f=None,maxSteps =100000):
         # If you don't like the option defaults,  change them here.
         self.host= 'localhost'
         self.port= 3001
@@ -122,7 +123,7 @@ class Client():
         self.trackname= 'unknown'
         self.stage= 3 # 0=Warm-up, 1=Qualifying 2=Race, 3=unknown <Default=3> 
         self.debug= False
-        self.maxSteps= 100000  # 50steps/second
+        self.maxSteps= maxSteps #100000  # 50steps/second
         self.pfilename= 'default_parameters'
         self.parse_the_command_line()
         if H: self.host= H

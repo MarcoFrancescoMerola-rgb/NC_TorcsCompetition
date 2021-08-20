@@ -1,12 +1,17 @@
 #!/usr/bin/python
+import os
 import sys
 import math
 import snakeoil
 import sys
 
 # parameters_list = []
-# parameters_list = [float(sys.argv[i]) for i in range(1, len(sys.argv))]
-trackName = 'Forza'
+#parameters_list = [str(sys.argv[i]) for i in range(1, len(sys.argv))]
+#print(parameters_list)
+stage = int(sys.argv[2])
+trackName = "" #sys.argv[4]
+steps= int(sys.argv[6])
+
 
 target_speed= 0 
 lap= 0 
@@ -76,7 +81,7 @@ class Track():
         with open(fn+'.trackinfo','r') as f:
             self.width= float(f.readline().strip())
             for l in f:
-                data=l.strip().split(' ') 
+                data=l.strip().split(' ')
                 TS= TrackSection(float(data[0]),float(data[1]),float(data[2]),self.width,int(data[3]))
                 self.sectionList.append(TS)
         self.laplength= self.sectionList[-1].end
@@ -659,12 +664,12 @@ def initialize_car(c):
 
 
 if __name__ == "__main__":
+
+    #global stage, trackName,steps
+
     T= Track()
-    C= snakeoil.Client(f='tmp_params', t=trackName)
-    print('-----------------------')
-    print('snakeoils Client inizialized')
-    print('-----------------------')
-    if C.stage == 1 or C.stage == 2:
+    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps)
+    if C.stage == 0 or C.stage == 2:
         try:
             T.load_track(C.trackname)
         except:
@@ -683,3 +688,4 @@ if __name__ == "__main__":
     C.R.d['meta']= 1
     C.respond_to_server()
     C.shutdown()
+    print(C)

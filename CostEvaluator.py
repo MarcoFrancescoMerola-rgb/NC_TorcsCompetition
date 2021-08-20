@@ -4,32 +4,44 @@ import threading
 import numpy as np
 import os
 import json
+import time
 
 output=""
-project_dir = os.getcwd()+"\\CarSim\\"
-# print(project_dir)
-# exit(0)
-torcs_dir = 'E:/Programs/torcs/'
+outClient =""
+project_dir = str(os.getcwd())
+carSim_dir = project_dir+"\\CarSim\\"
+torcs_dir = "E:\\Programs\\torcs\\"
+
 
 def loadTorcs():
     global output
     os.chdir(torcs_dir)
-    #-T
-    output = subprocess.run('wtorcs.exe -nofuel -nodamage', stdout=subprocess.PIPE, encoding='utf-8').stdout
+    print('threadTorcs dir: ', os.getcwd())
+    #-T -nofuel -nodamage
+    # output = subprocess.call(["wtorcs.exe", "-nofuel", "-nodamage"], cwd=torcs_dir,
+    #                          stdout=subprocess.PIPE, encoding='utf-8').stdout
+
+    #["wtorcs.exe","-T", "-r .\\customrace0ovalB.xml", "-nofuel", "-nodamage"]
+    output = subprocess.run(["wtorcs.exe","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
+                            cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
 
 def loadClient(particle):
-    tmpStr = " "
-    for p in particle:
-        tmpStr += str(p) + " "
-
-    os.system('python ' + project_dir+ 'client.py ' + tmpStr)
+    global outClient
+    os.chdir(project_dir)
+    print('threadClient dir: ', os.getcwd())
+    tmpArgs = " "
+    # for p in particle:
+    #     tmpArgs += str(p) + " "
+    # --stage 0 --track ovalB --steps 1000 --port 3001 --host localhost
+    tmpArgs +='--stage 1 --track Forza --steps 1000 --port 3001 --host localhost' 
+    os.system('python ' + carSim_dir+ 'client.py ' + tmpArgs )
 
 def evaluate(particle):
     global output
-    
+
     torcs_thread = threading.Thread(target=loadTorcs)
     torcs_thread.start()
-
+    time.sleep(1)
     client_thread = threading.Thread(target=loadClient(particle))
     client_thread.start()
     
@@ -68,7 +80,7 @@ def evaluateCostSwarm(swarm):
 def evaluateCostParticle(particle, paramsName):
     iterator = zip(paramsName, particle)
     jsonParams = dict(iterator)
-    with open('tmp_params','w') as json_file:
+    with open('./CarSim/tmp_params','w') as json_file:
         json.dump(jsonParams,json_file)
     tmp = evaluate(particle)
     print(tmp)

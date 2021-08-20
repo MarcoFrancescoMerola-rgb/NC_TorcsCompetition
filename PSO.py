@@ -23,7 +23,7 @@ def loadJsonParams(path):
 
 def PSO_execution():
     particlesNum = 10
-    dimensions = 2
+    dimensions = 49
     iterations = 2
 
     options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
@@ -35,13 +35,11 @@ def PSO_execution():
     #import default_parameters as np.ndarray
     parameters = loadJsonParams(param_path)
     paramsName = [paramName for paramName in parameters.keys()]
-
     parameters = np.fromiter(parameters.values(), dtype=float)
     array_param = np.zeros((1, dimensions))
     array_param[0] = parameters
-
     #create swarm with center in default_parameters
-    swarm = p.create_swarm(n_particles=particlesNum, dimensions=dimensions, options=options, bounds=bounds, center=array_param)
+    swarm = p.create_swarm(n_particles=particlesNum, dimensions=dimensions, options=options, center=array_param)
     
     #create swarm with parameters 
     init_swarm = np.zeros((particlesNum, dimensions))
