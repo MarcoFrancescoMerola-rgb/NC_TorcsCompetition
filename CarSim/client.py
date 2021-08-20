@@ -672,7 +672,7 @@ if __name__ == "__main__":
         try:
             T.load_track(C.trackname)
         except:
-            print(f"Could not load the track: {C.trackname}")
+            print("Could not load the track: {C.trackname}")
             sys.exit()
         print("Track loaded!")
     initialize_car(C)
@@ -683,7 +683,7 @@ if __name__ == "__main__":
         #     print('lastlaptime: ',C.S.d['lastLapTime'], " | ", C.S.d['curLapTime'])
         C.get_servers_input()
         drive(C,step)
-        #print("cur lap time: ", C.S.d['curLapTime'])
+        print("cur lap time: ", C.S.d['curLapTime'])
         C.respond_to_server()
     if not C.stage:  
         T.write_track(C.trackname) 
