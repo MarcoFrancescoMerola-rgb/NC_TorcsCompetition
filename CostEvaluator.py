@@ -22,8 +22,12 @@ def loadTorcs():
     #                          stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     #["wtorcs.exe","-T", "-r .\\customrace0ovalB.xml", "-nofuel", "-nodamage"]
-    output = subprocess.run(["wtorcs.exe","-T","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
-                            cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
+    # output = subprocess.run(["wtorcs.exe","-T","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
+    #                         cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
+
+    command = ("torcs -r " + f"/Tracks/Forza"+ "/race{0}.xml "+
+    "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
+    os.system(command)
 
 def loadClient(particle):
     global outClient
