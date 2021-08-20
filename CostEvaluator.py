@@ -10,13 +10,14 @@ output=""
 outClient =""
 project_dir = str(os.getcwd())
 carSim_dir = project_dir+"\\CarSim\\"
-torcs_dir = "E:\\Programs\\torcs\\"
+#torcs_dir = "E:\\Programs\\torcs\\"
 
 
 def loadTorcs():
     global output
-    os.chdir(torcs_dir)
-    print('threadTorcs dir: ', os.getcwd())
+    #os.chdir(torcs_dir)
+    #print('threadTorcs dir: ', os.getcwd())
+
     #-T -nofuel -nodamage
     # output = subprocess.call(["wtorcs.exe", "-nofuel", "-nodamage"], cwd=torcs_dir,
     #                          stdout=subprocess.PIPE, encoding='utf-8').stdout
@@ -25,7 +26,8 @@ def loadTorcs():
     # output = subprocess.run(["wtorcs.exe","-T","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
     #                         cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
 
-    command = ("torcs -r " + f"/Tracks/Forza"+ "/race{0}.xml "+
+    print('sto per avviare torcs')
+    command = ("torcs -r " + f"/Tracks/Forza"+ "/race0.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
     os.system(command)
 
