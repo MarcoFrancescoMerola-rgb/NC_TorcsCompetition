@@ -9,7 +9,7 @@ import time
 output=""
 outClient =""
 project_dir = str(os.getcwd())
-carSim_dir = project_dir+"\\CarSim\\"
+carSim_dir = project_dir+"/CarSim/"
 #torcs_dir = "E:\\Programs\\torcs\\"
 
 
@@ -34,7 +34,7 @@ def loadTorcs():
 def loadClient(particle):
     global outClient
     os.chdir(project_dir)
-    print('threadClient dir: ', os.getcwd())
+    #print('threadClient dir: ', os.getcwd())
     tmpArgs = " "
     # for p in particle:
     #     tmpArgs += str(p) + " "
