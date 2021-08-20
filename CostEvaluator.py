@@ -6,25 +6,19 @@ import os
 import json
 import time
 
+
+tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+serverTrackPorts = {"Forza":"3011","CG-Track-2":"3012",
+                    "E-Track-3":"3013","Wheel-1":"3014"}
+returnValues = {"Forza":None,"CG-Track-2":None,
+                "E-Track-3":None,"Wheel-1":None}
 output=""
 outClient =""
 project_dir = str(os.getcwd())
 carSim_dir = project_dir+"/CarSim/"
-#torcs_dir = "E:\\Programs\\torcs\\"
-
 
 def loadTorcs():
     global output
-    #os.chdir(torcs_dir)
-    #print('threadTorcs dir: ', os.getcwd())
-
-    #-T -nofuel -nodamage
-    # output = subprocess.call(["wtorcs.exe", "-nofuel", "-nodamage"], cwd=torcs_dir,
-    #                          stdout=subprocess.PIPE, encoding='utf-8').stdout
-
-    #["wtorcs.exe","-T", "-r .\\customrace0ovalB.xml", "-nofuel", "-nodamage"]
-    # output = subprocess.run(["wtorcs.exe","-T","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
-    #                         cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     command = ("torcs -r " + f"/Tracks/Forza"+ "/race0.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
@@ -33,59 +27,77 @@ def loadTorcs():
 def loadClient(particle):
     global outClient
     os.chdir(project_dir)
-    #print('threadClient dir: ', os.getcwd())
-    tmpArgs = " "
-    # for p in particle:
-    #     tmpArgs += str(p) + " "
-    # --stage 0 --track ovalB --steps 1000 --port 3001 --host localhost
-    tmpArgs +='--stage 1 --track ovalB --steps 100000 --port 3001 --host localhost' 
+    tmpArgs =' --stage 1 --track ovalB --steps 100000 --port 3001 --host localhost' 
     os.system('python ' + carSim_dir+ 'client.py ' + tmpArgs )
 
-def evaluate(particle):
-    global output
+def startSimulation(trackName,TrackPort,particle,retVal):
+    global returnValues
+    #print(trackName,' | ', TrackPort)
+    returnValues[retVal] = [trackName,1]
 
+    # TODO: returnValues ottiene gli score della pista
+    return 1
     torcs_thread = threading.Thread(target=loadTorcs)
     torcs_thread.start()
+
     time.sleep(1)
+
     client_thread = threading.Thread(target=loadClient(particle))
     client_thread.start()
     
     torcs_thread.join()
     client_thread.join()
+
+    print(output)
     matches = re.findall("lap.*", output)
-    [print(m,end='\r') for m in matches]
+    print(matches)
     if len(matches) == 0 or len(matches) ==1:
         fitness = float('inf')
     else:
         fitness = float(matches[0].split(':')[1]) + float(matches[1].split(':')[1])
     return fitness
 
+def evaluate(particle):
+    global output,tracksList,returnValues
+    subProcs = []
+    # returnValues = {"Forza":None,"CG-Track-2":None,
+    #                 "E-Track-3":None,"Wheel-1":None}
 
-def evaluateCostSwarm(swarm):
-    fitness = np.zeros((swarm.shape[0],))
-    count = 0
-    with open('tmp_params','r') as json_file:
-        json_param = json.load(json_file)
-    for particle in swarm:
-        i_particle = 0
-        for key in json_param.keys():
-            json_param[key] = particle[i_particle]
-            i_particle += 1
-        with open('tmp_params', 'w') as outfile:
-            json.dump(json_param, outfile)
-        temp = evaluate()
-        print("Particle "+ str(count) + " -> " + str(temp))
-        fitness.put(count,temp)
-        count += 1
-    print("Total fitness array: " + str(fitness))
+    #TODO: le piste possono avere un calcolo di score
+    #      diverso in base alla loro complessita
+    for trackName in tracksList:
+        port =serverTrackPorts[trackName]
+        #returnValues[trackName]]
+        subProcs.append(threading.Thread(target=startSimulation,
+                       args=[trackName,port,particle,trackName]))
+        subProcs[-1].start()
+        time.sleep(1)
+        pass
+    # waiting for all tracks to end
+    for proc in subProcs:
+        proc.join()
+    # working on single track scores
 
-    return fitness
+    # print('results:')
+    # for v in returnValues.values():
+    #     print(v)
+    
 
-def evaluateCostParticle(particle, paramsName):
+    #TODO: genera la funzione di valutazione
+    return 1
+
+### evaluate a particle cost by testing on different
+### tracks and estimating a mean score of all
+def evaluateParticleCost(particle, paramsName):
+    # create a json containing params
     iterator = zip(paramsName, particle)
     jsonParams = dict(iterator)
     with open('./CarSim/tmp_params','w') as json_file:
         json.dump(jsonParams,json_file)
+    
+    # evaluate particle on all tracks
+    print("Starting evaluation...")
     tmp = evaluate(particle)
-    print(tmp)
+    # TODO: create a cost function based on
+    #       the results of all tracks score
     return
