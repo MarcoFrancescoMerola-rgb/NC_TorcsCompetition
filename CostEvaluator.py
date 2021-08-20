@@ -22,7 +22,7 @@ def loadTorcs():
     #                          stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     #["wtorcs.exe","-T", "-r .\\customrace0ovalB.xml", "-nofuel", "-nodamage"]
-    output = subprocess.run(["wtorcs.exe","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
+    output = subprocess.run(["wtorcs.exe","-T","-r .\\customrace0Forza.xml", "-t 1000000000", "-nofuel", "-nodamage","> ServerOutput.txt"],
                             cwd = torcs_dir, stdout=subprocess.PIPE, encoding='utf-8').stdout
 
 def loadClient(particle):
@@ -33,7 +33,7 @@ def loadClient(particle):
     # for p in particle:
     #     tmpArgs += str(p) + " "
     # --stage 0 --track ovalB --steps 1000 --port 3001 --host localhost
-    tmpArgs +='--stage 1 --track Forza --steps 1000 --port 3001 --host localhost' 
+    tmpArgs +='--stage 1 --track ovalB --steps 100000 --port 3001 --host localhost' 
     os.system('python ' + carSim_dir+ 'client.py ' + tmpArgs )
 
 def evaluate(particle):
@@ -47,9 +47,8 @@ def evaluate(particle):
     
     torcs_thread.join()
     client_thread.join()
-    
     matches = re.findall("lap.*", output)
-    print(matches)
+    [print(m,end='\r') for m in matches]
     if len(matches) == 0 or len(matches) ==1:
         fitness = float('inf')
     else:

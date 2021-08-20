@@ -666,7 +666,6 @@ def initialize_car(c):
 if __name__ == "__main__":
 
     #global stage, trackName,steps
-
     T= Track()
     C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps)
     if C.stage == 0 or C.stage == 2:
@@ -680,12 +679,14 @@ if __name__ == "__main__":
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
     for step in range(C.maxSteps,0,-1):
+        # if (step/50) == 0 :
+        #     print('lastlaptime: ',C.S.d['lastLapTime'], " | ", C.S.d['curLapTime'])
         C.get_servers_input()
         drive(C,step)
+        #print("cur lap time: ", C.S.d['curLapTime'])
         C.respond_to_server()
     if not C.stage:  
         T.write_track(C.trackname) 
     C.R.d['meta']= 1
     C.respond_to_server()
     C.shutdown()
-    print(C)
