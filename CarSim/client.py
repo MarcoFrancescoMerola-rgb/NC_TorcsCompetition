@@ -8,11 +8,13 @@ import sys
 # parameters_list = []
 #parameters_list = [str(sys.argv[i]) for i in range(1, len(sys.argv))]
 #print(parameters_list)
+
 stage = int(sys.argv[2])
 trackName = "" #sys.argv[4]
 steps= int(sys.argv[6])
+port = str(sys.argv[8])
 
-
+onetimeprint=0
 target_speed= 0 
 lap= 0 
 prev_distance_from_start= 1 
@@ -540,6 +542,10 @@ def drive(c,tick):
     global prev_distance_from_start
     global learn_final
     global badness
+    global onetimeprint
+    if onetimeprint <=0:
+        print(S)
+        onetimeprint =5
     badness= S['damage']-badness 
     skid= skid_severity(P,S['wheelSpinVel'],S['speedX'])
     if skid>1:
@@ -667,7 +673,7 @@ if __name__ == "__main__":
 
     #global stage, trackName,steps
     T= Track()
-    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps)
+    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=int(port))
     if C.stage == 0 or C.stage == 2:
         try:
             T.load_track(C.trackname)

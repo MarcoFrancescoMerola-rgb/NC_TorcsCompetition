@@ -285,6 +285,7 @@ class ServerState():
 
     def parse_server_str(self, server_string):
         '''Parse the server string.'''
+        print(server_string)
         self.servstr= server_string.strip()[:-1]
         sslisted= self.servstr.strip().lstrip('(').rstrip(')').split(')(')
         for i in sslisted:

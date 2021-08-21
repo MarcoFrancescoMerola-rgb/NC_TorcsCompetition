@@ -25,7 +25,7 @@ def loadTorcs(trackName,trackPort):
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ "/race0.xml "+
-    "-nofuel -t 1000000000 > torcsOutput.txt")
+    "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
     print(command)
     os.system(command)
 
