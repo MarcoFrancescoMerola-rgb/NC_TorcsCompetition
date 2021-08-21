@@ -19,7 +19,12 @@ carSim_dir = project_dir+"/CarSim/"
 def loadTorcs(trackName,trackPort):
     global output
 
-    command = ("torcs -r " + f"/Tracks/{trackName}"+ "/race0.xml "+
+    # os.chdir("E:\\Programs\\torcs\\")
+    # output = subprocess.run(["wtorcs.exe","-T","-r .\\Tracks\\Forza\\race0.xml", "-t 1000000000",
+    #                          "-nofuel", "-nodamage","> ServerOutput.txt"],
+    #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
+
+    command = ("torcs -r " + f"./Tracks/{trackName}"+ "/race0.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
     print(command)
     os.system(command)

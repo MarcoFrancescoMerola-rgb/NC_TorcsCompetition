@@ -10,5 +10,6 @@ __pycache__/
 .idea/
 venv/
 tmp_params
+*.trackinfo
 #carsim
 #CarSim/*
