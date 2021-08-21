@@ -13,7 +13,6 @@ serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
 returnValues = {"Forza":None,"CG-Track-2":None,
                 "E-Track-3":None,"Wheel-1":None}
 output=""
-outClient =""
 project_dir = str(os.getcwd())
 carSim_dir = project_dir+"/CarSim/"
 
@@ -22,6 +21,7 @@ def loadTorcs(trackName,trackPort):
 
     command = ("torcs -r " + f"/Tracks/{trackName}"+ "/race0.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
+    print(command)
     os.system(command)
 
 def loadClient(particle,trackName,port):
@@ -32,7 +32,7 @@ def loadClient(particle,trackName,port):
 
 def startSimulation(trackName,trackPort,particle,retVal):
     global returnValues
-    #print(trackName,' | ', trackPort)
+    print(trackName,' | ', trackPort)
     
     torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort])
     torcs_thread.start()

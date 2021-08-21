@@ -1,11 +1,11 @@
 import os
 import numpy as np
 import pyswarms.backend as p
-from pyswarms.backend.topology import Star
+#from pyswarms.backend.topology import Star
 import json
 import CostEvaluator
-from pyswarms.utils.plotters import plot_cost_history
-import matplotlib.pyplot as plt
+#from pyswarms.utils.plotters import plot_cost_history
+#import matplotlib.pyplot as plt
 import time
 import datetime
 import itertools
@@ -15,7 +15,7 @@ param_path = "./test_parameters"
 
 ### Returns a list of hyperparmeters combinations
 ### enclosed in a dict so one can test different sets
-def generateHyperparamsCombinations( psoH: dict):
+def generateHyperparamsCombinations(psoH):
     paramsList = list(psoH.keys())
     l= len(psoH[paramsList[0]])*len(psoH[paramsList[1]])*len(psoH[paramsList[2]])
     combinationsList=[None for i in range(0,l)]
@@ -86,7 +86,7 @@ def PSO_execution(hyperparams,swarmParticles=10,iteractions=3):
         print("Executing iteration: ", i+1,"/",iteractionNum)
         for particle in my_swarm.position:
             CostEvaluator.evaluateParticleCost(particle, paramsName)
-            #exit(0)
+            exit(0)
             #TODO: continua ad implementare pso
             
     pass
