@@ -8,8 +8,8 @@ import time
 
 
 tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
-serverTrackPorts = {"Forza":"3011","CG-Track-2":"3012",
-                    "E-Track-3":"3013","Wheel-1":"3014"}
+serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
+                    "E-Track-3":"3003","Wheel-1":"3004"}
 returnValues = {"Forza":None,"CG-Track-2":None,
                 "E-Track-3":None,"Wheel-1":None}
 output=""
@@ -32,7 +32,7 @@ def loadClient(particle):
 
 def startSimulation(trackName,TrackPort,particle,retVal):
     global returnValues
-    #print(trackName,' | ', TrackPort)
+    print(trackName,' | ', TrackPort)
     returnValues[retVal] = [trackName,1]
 
     # TODO: returnValues ottiene gli score della pista
@@ -78,9 +78,9 @@ def evaluate(particle):
         proc.join()
     # working on single track scores
 
-    # print('results:')
-    # for v in returnValues.values():
-    #     print(v)
+    print('results:')
+    for v in returnValues.values():
+        print(v)
     
 
     #TODO: genera la funzione di valutazione
