@@ -7,7 +7,7 @@ import json
 import time
 
 
-tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+tracksList = ["Forza"]#["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
                     "E-Track-3":"3003","Wheel-1":"3004"}
 returnValues = {"Forza":None,"CG-Track-2":None,
@@ -17,36 +17,37 @@ outClient =""
 project_dir = str(os.getcwd())
 carSim_dir = project_dir+"/CarSim/"
 
-def loadTorcs():
+def loadTorcs(trackName,trackPort):
     global output
 
-    command = ("torcs -r " + f"/Tracks/Forza"+ "/race0.xml "+
+    command = ("torcs -r " + f"/Tracks/{trackName}"+ "/race0.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
     os.system(command)
 
-def loadClient(particle):
+def loadClient(particle,trackName,port):
     global outClient
     os.chdir(project_dir)
-    tmpArgs =' --stage 1 --track ovalB --steps 100000 --port 3001 --host localhost' 
+    tmpArgs =f' --stage 1 --track {trackName} --steps 100000 --port {port} --host localhost' 
     os.system('python ' + carSim_dir+ 'client.py ' + tmpArgs )
 
-def startSimulation(trackName,TrackPort,particle,retVal):
+def startSimulation(trackName,trackPort,particle,retVal):
     global returnValues
-    print(trackName,' | ', TrackPort)
-    returnValues[retVal] = [trackName,1]
-
-    # TODO: returnValues ottiene gli score della pista
-    return 1
-    torcs_thread = threading.Thread(target=loadTorcs)
+    #print(trackName,' | ', trackPort)
+    
+    torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort])
     torcs_thread.start()
 
     time.sleep(1)
 
-    client_thread = threading.Thread(target=loadClient(particle))
+    client_thread = threading.Thread(target=loadClient,args=[particle,trackName,trackPort])
     client_thread.start()
     
     torcs_thread.join()
     client_thread.join()
+
+    # TODO: returnValues ottiene gli score della pista
+    returnValues[retVal] = [trackName,1]
+    return 1
 
     print(output)
     matches = re.findall("lap.*", output)
@@ -78,9 +79,9 @@ def evaluate(particle):
         proc.join()
     # working on single track scores
 
-    print('results:')
-    for v in returnValues.values():
-        print(v)
+    # print('results:')
+    # for v in returnValues.values():
+    #     print(v)
     
 
     #TODO: genera la funzione di valutazione
