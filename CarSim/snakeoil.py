@@ -285,12 +285,17 @@ class ServerState():
 
     def parse_server_str(self, server_string):
         '''Parse the server string.'''
-        print(server_string)
         self.servstr= server_string.strip()[:-1]
         sslisted= self.servstr.strip().lstrip('(').rstrip(')').split(')(')
         for i in sslisted:
             w= i.split(' ')
-            self.d[w[0]]= destringify(w[1:])
+            supportVector=[]
+            if len(w)> 2:
+                supportVector = [float(w[i]) for i in range(1,len(w))]
+                self.d[w[0]] = supportVector
+            else:
+                self.d[w[0]] = float(w[1])            
+            #self.d[w[0]]= destringify(w[1:])
 
     def __repr__(self):
         # Comment the next line for raw output:

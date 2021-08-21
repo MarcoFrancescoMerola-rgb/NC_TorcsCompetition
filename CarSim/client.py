@@ -14,7 +14,6 @@ trackName = "" #sys.argv[4]
 steps= int(sys.argv[6])
 port = str(sys.argv[8])
 
-onetimeprint=0
 target_speed= 0 
 lap= 0 
 prev_distance_from_start= 1 
@@ -542,10 +541,6 @@ def drive(c,tick):
     global prev_distance_from_start
     global learn_final
     global badness
-    global onetimeprint
-    if onetimeprint <=0:
-        print(S)
-        onetimeprint =5
     badness= S['damage']-badness 
     skid= skid_severity(P,S['wheelSpinVel'],S['speedX'])
     if skid>1:
@@ -685,11 +680,8 @@ if __name__ == "__main__":
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
     for step in range(C.maxSteps,0,-1):
-        # if (step/50) == 0 :
-        #     print('lastlaptime: ',C.S.d['lastLapTime'], " | ", C.S.d['curLapTime'])
         C.get_servers_input()
         drive(C,step)
-        #print("cur lap time: ", C.S.d['curLapTime'])
         C.respond_to_server()
     if not C.stage:  
         T.write_track(C.trackname) 
