@@ -2,17 +2,10 @@
 import os
 import sys
 import math
-import snakeoil
+from CarSim import snakeoil
 import sys
 
-# parameters_list = []
-#parameters_list = [str(sys.argv[i]) for i in range(1, len(sys.argv))]
-#print(parameters_list)
-
-stage = int(sys.argv[2])
-trackName = "" #sys.argv[4]
-steps= int(sys.argv[6])
-port = str(sys.argv[8])
+T = None
 
 target_speed= 0 
 lap= 0 
@@ -28,6 +21,7 @@ secWidth= 0
 sangs= [-45,-19,-12,-7,-4,-2.5,-1.7,-1,-.5,0,.5,1,1.7,2.5,4,7,12,19,45]
 sangsrad= [(math.pi*X/180.0) for X in sangs]
 badness= 0
+
 class Track():
     def __init__(self):
         self.laplength= 0 
@@ -664,9 +658,9 @@ def initialize_car(c):
     c.respond_to_server() 
 
 
-if __name__ == "__main__":
-
-    #global stage, trackName,steps
+def run(trackName,stage,steps,port):
+    global T
+    print("running track: ", trackName)
     T= Track()
     C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=int(port))
     if C.stage == 0 or C.stage == 2:
@@ -688,3 +682,38 @@ if __name__ == "__main__":
     C.R.d['meta']= 1
     C.respond_to_server()
     C.shutdown()
+    retDict = {}
+    retDict['curLapTime'] = C.S.d['curLapTime']
+    retDict['racePos'] = C.S.d['racePos']
+    #print(C.S.d)
+    return retDict
+
+if __name__ == "__main__":
+    pass
+
+    #global stage, trackName,steps
+
+
+    # T= Track()
+    # C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=int(port))
+    # if C.stage == 0 or C.stage == 2:
+    #     try:
+    #         T.load_track(C.trackname)
+    #     except:
+    #         print("Could not load the track: {C.trackname}")
+    #         sys.exit()
+    #     print("Track loaded!")
+    # initialize_car(C)
+    # C.S.d['stucktimer']= 0
+    # C.S.d['targetSpeed']= 0
+    # for step in range(C.maxSteps,0,-1):
+    #     C.get_servers_input()
+    #     drive(C,step)
+    #     C.respond_to_server()
+    # if not C.stage:  
+    #     T.write_track(C.trackname) 
+    # C.R.d['meta']= 1
+    # C.respond_to_server()
+    # C.shutdown()
+    # retDict = C.S.d
+    # print(retDict)

@@ -274,8 +274,8 @@ class Client():
        #       % (self.maxSteps,self.port))
         self.so.close()
         self.so= None
-        print('distRaced: ', self.S.d['distRaced'])
-        sys.exit() # No need for this really.
+        #print('distRaced: ', self.S.d['distRaced'])
+        #sys.exit() # No need for this really.
 
 class ServerState():
     '''What the server is reporting right now.'''

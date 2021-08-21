@@ -5,9 +5,10 @@ import numpy as np
 import os
 import json
 import time
+from CarSim import client
+from concurrent.futures import *
 
-
-tracksList = ["Forza"]#["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
                     "E-Track-3":"3003","Wheel-1":"3004"}
 returnValues = {"Forza":None,"CG-Track-2":None,
@@ -18,41 +19,43 @@ carSim_dir = project_dir+"/CarSim/"
 
 def loadTorcs(trackName,trackPort):
     global output
-
+    port = int(trackPort[3])-1
     # os.chdir("E:\\Programs\\torcs\\")
-    # output = subprocess.run(["wtorcs.exe","-T","-r .\\Tracks\\Forza\\race0.xml", "-t 1000000000",
+    # print('using port: ', port)
+    # output = subprocess.run(["wtorcs.exe","-T",f"-r .\\Tracks\\{trackName}\\race{port}.xml", "-t 1000000000",
     #                          "-nofuel", "-nodamage","> ServerOutput.txt"],
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
-    command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ "/race0.xml "+
+    command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ f"/race{port}.xml "+
     "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
     print(command)
     os.system(command)
 
 def loadClient(particle,trackName,port):
-    global outClient
+    stage = 1
+    steps = 100000
     os.chdir(project_dir)
-    tmpArgs =f' --stage 1 --track {trackName} --steps 100000 --port {port} --host localhost' 
-    os.system('python ' + carSim_dir+ 'client.py ' + tmpArgs )
+    result = client.run(trackName,stage,steps,port)
+    return result
 
 def startSimulation(trackName,trackPort,particle,retVal):
     global returnValues
-    print(trackName,' | ', trackPort)
     
     torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort])
     torcs_thread.start()
 
     time.sleep(1)
 
-    client_thread = threading.Thread(target=loadClient,args=[particle,trackName,trackPort])
-    client_thread.start()
+    clientResult= None
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(loadClient, particle,trackName,trackPort)
+        as_completed(future)
+        clientResult= future.result()
     
     torcs_thread.join()
-    client_thread.join()
 
-    # TODO: returnValues ottiene gli score della pista
-    returnValues[retVal] = [trackName,1]
-    return 1
+    # TODO: clientResult ottiene gli score della pista
+    return clientResult
 
     print(output)
     matches = re.findall("lap.*", output)
@@ -65,32 +68,32 @@ def startSimulation(trackName,trackPort,particle,retVal):
 
 def evaluate(particle):
     global output,tracksList,returnValues
-    subProcs = []
-    # returnValues = {"Forza":None,"CG-Track-2":None,
-    #                 "E-Track-3":None,"Wheel-1":None}
 
     #TODO: le piste possono avere un calcolo di score
     #      diverso in base alla loro complessita
-    for trackName in tracksList:
-        port =serverTrackPorts[trackName]
-        #returnValues[trackName]]
-        subProcs.append(threading.Thread(target=startSimulation,
-                       args=[trackName,port,particle,trackName]))
-        subProcs[-1].start()
-        time.sleep(1)
-        pass
-    # waiting for all tracks to end
-    for proc in subProcs:
-        proc.join()
+    simulationsResult = []
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futuresList = []
+        for trackName in tracksList:
+            port =serverTrackPorts[trackName]
+            print('Creo thread: ',trackName, " | ",port)
+            future = executor.submit(startSimulation, trackName,port,particle,trackName)
+            time.sleep(0.2)
+            futuresList.append(future)
+        # waiting for all tracks to end
+        for f in as_completed(futuresList):
+            simulationsResult.append(f.result())
+
+
+
     # working on single track scores
 
     # print('results:')
-    # for v in returnValues.values():
-    #     print(v)
-    
+    for v in simulationsResult:
+        print(v)
 
     #TODO: genera la funzione di valutazione
-    return 1
+    return simulationsResult
 
 ### evaluate a particle cost by testing on different
 ### tracks and estimating a mean score of all
