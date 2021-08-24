@@ -35,7 +35,8 @@ class Track():
         return o
     def post_process_track(self):
         ws= [round(s.width) for s in self.sectionList]
-        ws= filter(lambda O:O,ws) 
+        print(ws)
+        ws= [O for O in ws if O]
         ws.sort()          
         self.width= ws[len(ws)/2]   
         cleanedlist= list()
