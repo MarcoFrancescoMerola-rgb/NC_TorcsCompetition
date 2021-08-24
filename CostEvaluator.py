@@ -8,7 +8,7 @@ import time
 from CarSim import client
 from concurrent.futures import *
 
-tracksList = ["Forza"] #["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+tracksList = ["Forza"]#["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
                     "E-Track-3":"3003","Wheel-1":"3004"}
 returnValues = {"Forza":None,"CG-Track-2":None,
@@ -20,6 +20,7 @@ carSim_dir = project_dir+"/CarSim/"
 def loadTorcs(trackName,trackPort):
     global output
     port = int(trackPort[3])-1
+    
     # os.chdir("E:\\Programs\\torcs\\")
     # print('using port: ', port)
     # output = subprocess.run(["wtorcs.exe","-T",f"-r .\\Tracks\\{trackName}\\race{port}.xml", "-t 1000000000",
@@ -27,8 +28,8 @@ def loadTorcs(trackName,trackPort):
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ f"/race{port}.xml "+
-    "-nofuel -nodamage -t 1000000000" +f"> torcsOutput{port}.txt")
-    print(command)
+    "-nofuel -nodamage -t 1000000000" +f"> torcsOutput{trackPort}.txt")
+    #print(command)
     os.system(command)
 
 def loadClient(particle,trackName,port):
@@ -57,14 +58,14 @@ def startSimulation(trackName,trackPort,particle,retVal):
     # TODO: clientResult ottiene gli score della pista
     return clientResult
 
-    print(output)
-    matches = re.findall("lap.*", output)
-    print(matches)
-    if len(matches) == 0 or len(matches) ==1:
-        fitness = float('inf')
-    else:
-        fitness = float(matches[0].split(':')[1]) + float(matches[1].split(':')[1])
-    return fitness
+    # print(output)
+    # matches = re.findall("lap.*", output)
+    # print(matches)
+    # if len(matches) == 0 or len(matches) ==1:
+    #     fitness = float('inf')
+    # else:
+    #     fitness = float(matches[0].split(':')[1]) + float(matches[1].split(':')[1])
+    # return fitness
 
 def evaluate(particle):
     global output,tracksList,returnValues
@@ -76,7 +77,8 @@ def evaluate(particle):
         futuresList = []
         for trackName in tracksList:
             port =serverTrackPorts[trackName]
-            print('Creo thread: ',trackName, " | ",port)
+            # print('Creo thread: ',trackName, " | ",port)
+            # print("------------------------------------")
             future = executor.submit(startSimulation, trackName,port,particle,trackName)
             time.sleep(0.2)
             futuresList.append(future)
@@ -88,9 +90,11 @@ def evaluate(particle):
 
     # working on single track scores
 
-    # print('results:')
+    print('\n--------------------------------------------------\n\t\t   RESULTS\n')
     for v in simulationsResult:
         print(v)
+    
+
 
     #TODO: genera la funzione di valutazione
     return simulationsResult
@@ -105,7 +109,8 @@ def evaluateParticleCost(particle, paramsName):
         json.dump(jsonParams,json_file)
     
     # evaluate particle on all tracks
-    print("Starting evaluation...")
+    print("Starting evaluation...\n")
+    print('--------------------------------------------------\n\t\tRUNNING TRACK\n')
     tmp = evaluate(particle)
     # TODO: create a cost function based on
     #       the results of all tracks score

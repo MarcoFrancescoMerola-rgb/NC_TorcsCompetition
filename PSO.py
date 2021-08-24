@@ -10,6 +10,10 @@ import time
 import datetime
 import itertools
 from tqdm import tqdm
+import signal
+import sys
+
+signal.signal(signal.SIGINT, lambda x, y: sys.exit(0)) #hide traceback
 
 param_path = "./test_parameters"
 

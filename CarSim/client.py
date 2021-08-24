@@ -657,12 +657,10 @@ def initialize_car(c):
     R['accel']= .22 
     R['focus']= 0 
     c.respond_to_server() 
-
-
 def run(trackName,stage,steps,port):
     global T
     final_steps =0
-    print("running track: ", trackName)
+    print("Running track: ", trackName)
     T= Track()
     C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=int(port))
     if C.stage == 0 or C.stage == 2:
@@ -679,7 +677,7 @@ def run(trackName,stage,steps,port):
     sameTimeFlag = 0
     lapsNum =0
     lapsTime =[]
-    meanSpeed = []
+    lapsMeanSpeed = []
     for step in range(C.maxSteps,0,-1):
         C.get_servers_input()
         drive(C,step)
@@ -692,7 +690,7 @@ def run(trackName,stage,steps,port):
             if C.S.d['curLapTime'] < prevTime:
                 lapsNum+=1
                 lapsTime.append(prevTime)
-                meanSpeed.append(round((T.laplength/prevTime) *3.6,2))  
+                lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))  
             prevTime = C.S.d['curLapTime']
             sameTimeFlag= 0
     if not C.stage:  
@@ -701,22 +699,23 @@ def run(trackName,stage,steps,port):
     C.respond_to_server()
     C.shutdown()
     retDict = {}
-    retDict['lastLapTime'] = C.S.d['lastLapTime']
-    retDict['curLapTime'] = C.S.d['curLapTime']
     retDict['racePos'] = C.S.d['racePos']
-    print('\n ---------------------------------------------------------------')
-    print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
-    print('|---------------------------------------------------------------|')
-    print('| mean speed per lap:\t|',meanSpeed,'\t| [KM/H]\t|')
-    print('| lap times:\t\t|',lapsTime,'\t| [S]\t\t|')
-    print('| best lap time:\t|',min(lapsTime),'\t\t| [S]\t\t|')
-    print('| mean speed:\t\t|',round(statistics.mean(meanSpeed),2),'\t\t| [KM/H]\t|')
-    print('|---------------------------------------------------------------|')
-    print('| final_steps:\t\t|',final_steps,'\t\t\t\t|')
-    print('| laps:\t\t\t|',lapsNum,'\t\t\t\t\t|')
-    print(' ---------------------------------------------------------------\n')
-    print(C.S.d)
-    print(' ---------------------------------------------------------------')
+    retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2)
+    retDict['lapsTime'] = lapsTime
+    retDict['minLap'] = min(lapsTime)
+    # print('\n ---------------------------------------------------------------')
+    # print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
+    # print('|---------------------------------------------------------------|')
+    # print('| mean speed per lap:\t|',lapsMeanSpeed,'\t| [KM/H]\t|')
+    # print('| lap times:\t\t|',lapsTime,'\t| [S]\t\t|')
+    # print('| best lap time:\t|',min(lapsTime),'\t\t| [S]\t\t|')
+    # print('| mean speed:\t\t|',round(statistics.mean(lapsMeanSpeed),2),'\t\t| [KM/H]\t|')
+    # print('|---------------------------------------------------------------|')
+    # print('| final_steps:\t\t|',final_steps,'\t\t\t\t|')
+    # print('| laps:\t\t\t|',lapsNum,'\t\t\t\t\t|')
+    # print(' ---------------------------------------------------------------\n')
+    # print(C.S.d)
+    # print(' ---------------------------------------------------------------')
 
     return retDict
 
