@@ -674,8 +674,9 @@ def run(trackName,stage,steps,port):
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
     prevTime = float("-Inf")
-    sameTimeFlag = 0
+    sameTimeFlag= 0
     lapsNum =0
+    circuitTime= 0 
     lapsTime =[]
     lapsMeanSpeed = []
     for step in range(C.maxSteps,0,-1):
@@ -690,6 +691,7 @@ def run(trackName,stage,steps,port):
             if C.S.d['curLapTime'] < prevTime:
                 lapsNum+=1
                 lapsTime.append(prevTime)
+                circuitTime += prevTime
                 lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))  
             prevTime = C.S.d['curLapTime']
             sameTimeFlag= 0
@@ -716,6 +718,8 @@ def run(trackName,stage,steps,port):
     # print(' ---------------------------------------------------------------\n')
     # print(C.S.d)
     # print(' ---------------------------------------------------------------')
+
+    score = scoreAssignment(numLaps, circuitTime, carDamage, retDict['racePos'])
 
     return retDict
 

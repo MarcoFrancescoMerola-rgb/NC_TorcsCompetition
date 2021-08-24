@@ -115,3 +115,9 @@ def evaluateParticleCost(particle, paramsName):
     # TODO: create a cost function based on
     #       the results of all tracks score
     return
+
+def scoreAssignment(numLaps, circuitTime, carDamage, racePosition):
+
+    score = float(numLaps * 1000) - (2.0 * circuitTime) - carDamage - (float(racePosition) - 1.0)
+    
+    return score
