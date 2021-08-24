@@ -32,7 +32,7 @@ def loadTorcs(trackName,trackPort):
     os.system(command)
 
 def loadClient(particle,trackName,port):
-    stage = 1
+    stage = 1 # 0=Warm-up, 1=Qualifying 2=Race, 3=unknown <Default=3> 
     steps = 100000
     os.chdir(project_dir)
     result = client.run(trackName,stage,steps,port)
