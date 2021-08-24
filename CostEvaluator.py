@@ -8,6 +8,8 @@ import time
 from CarSim import client
 from concurrent.futures import *
 
+
+trackMode = ["Solo","Competition"]
 tracksList = ["Forza"]#["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
                     "E-Track-3":"3003","Wheel-1":"3004"}
@@ -17,7 +19,7 @@ output=""
 project_dir = str(os.getcwd())
 carSim_dir = project_dir+"/CarSim/"
 
-def loadTorcs(trackName,trackPort):
+def loadTorcs(trackName,trackPort,trackMode):
     global output
     port = int(trackPort[3])-1
     
@@ -27,7 +29,7 @@ def loadTorcs(trackName,trackPort):
     #                          "-nofuel", "-nodamage","> ServerOutput.txt"],
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
-    command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ f"/race{port}.xml "+
+    command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+f"/{trackMode}"+ f"/race{port}.xml "+
     "-nofuel -nodamage -t 1000000000" +f"> torcsOutput{trackPort}.txt")
     #print(command)
     os.system(command)
@@ -40,9 +42,9 @@ def loadClient(particle,trackName,port):
     return result
 
 def startSimulation(trackName,trackPort,particle,retVal):
-    global returnValues
+    global returnValues, trackMode
     
-    torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort])
+    torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort,trackMode[0]])
     torcs_thread.start()
 
     time.sleep(1)
