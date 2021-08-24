@@ -8,7 +8,7 @@ import time
 from CarSim import client
 from concurrent.futures import *
 
-tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+tracksList = ["Forza"] #["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":"3001","CG-Track-2":"3002",
                     "E-Track-3":"3003","Wheel-1":"3004"}
 returnValues = {"Forza":None,"CG-Track-2":None,
@@ -27,7 +27,7 @@ def loadTorcs(trackName,trackPort):
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
     command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+ f"/race{port}.xml "+
-    "-nofuel -nodamage -t 1000000000 > torcsOutput.txt")
+    "-nofuel -nodamage -t 1000000000" +f"> torcsOutput{port}.txt")
     print(command)
     os.system(command)
 
@@ -72,7 +72,7 @@ def evaluate(particle):
     #TODO: le piste possono avere un calcolo di score
     #      diverso in base alla loro complessita
     simulationsResult = []
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=len(tracksList)) as executor:
         futuresList = []
         for trackName in tracksList:
             port =serverTrackPorts[trackName]
