@@ -83,7 +83,7 @@ def evaluate(particle):
         futuresList = []
         for trackName in tracksList:
             port =serverTrackPorts[trackName]
-            future = executor.submit(startSimulation, trackName,port,particle,trackName)
+            future = executor.submit(startSimulation, trackName,port,particle)
             time.sleep(0.2)
             futuresList.append(future)
         # waiting for all tracks to end
