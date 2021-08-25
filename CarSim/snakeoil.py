@@ -231,15 +231,17 @@ class Client():
                 sockdata,addr= self.so.recvfrom(1024)
                 sockdata = sockdata.decode('utf-8')
             except socket.error as emsg:
-                print ('.',)
+                pass
+                #print ('.',)
+                #print(emsg)
                 #print "Waiting for data on %d.............." % self.port
             if '***identified***' in sockdata:
                 print( "Client connected on %d.............." % self.port)
                 continue
             elif '***shutdown***' in sockdata:
-                print (("Server has stopped the race on %d. "+
-                        "You were in %d place.") %
-                        (self.port,self.S.d['racePos']))
+                # print (("Server has stopped the race on %d. "+
+                #         "You were in %d place.") %
+                #         (self.port,self.S.d['racePos']))
                 self.shutdown()
                 return
             elif '***restart***' in sockdata:

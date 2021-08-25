@@ -1,4 +1,5 @@
 #!/usr/bin/python
+######################## IMPORT #########################
 import os
 import sys
 import math
@@ -6,8 +7,8 @@ from CarSim import snakeoil
 import sys
 import statistics
 
+#################### GLOBAL VARIABLE #####################
 T = None
-
 target_speed= 0 
 lap= 0 
 prev_distance_from_start= 1 
@@ -23,6 +24,7 @@ sangs= [-45,-19,-12,-7,-4,-2.5,-1.7,-1,-.5,0,.5,1,1.7,2.5,4,7,12,19,45]
 sangsrad= [(math.pi*X/180.0) for X in sangs]
 badness= 0
 
+######################## FUNCTION #########################
 class Track():
     def __init__(self):
         self.laplength= 0 
@@ -657,19 +659,23 @@ def initialize_car(c):
     R['accel']= .22 
     R['focus']= 0 
     c.respond_to_server() 
+# try to load tracks, start run on them and 
+# return a dictionary containing parameters such as: 
+# number of laps, car damage, circuit time, race position. 
 def run(trackName,stage,steps,port):
     global T
+
     final_steps =0
-    print("Running track: ", trackName)
     T= Track()
-    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=int(port))
+    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=port)
+
     if C.stage == 0 or C.stage == 2:
         try:
             T.load_track(C.trackname)
         except:
             print("Could not load the track: {C.trackname}")
             sys.exit()
-        print("Track loaded!")
+        #print("Track loaded!")
     initialize_car(C)
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
@@ -692,7 +698,7 @@ def run(trackName,stage,steps,port):
                 lapsNum+=1
                 lapsTime.append(prevTime)
                 circuitTime += prevTime
-                lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))  
+                lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))
             prevTime = C.S.d['curLapTime']
             sameTimeFlag= 0
     if not C.stage:  
@@ -701,10 +707,20 @@ def run(trackName,stage,steps,port):
     C.respond_to_server()
     C.shutdown()
     retDict = {}
+    if lapsNum ==0:
+        print('No laps completed in this track')
+        retDict['minLap'] = None
+        retDict['circuitTime'] = float("inf")
+    else:
+        retDict['minLap'] = min(lapsTime)
+        retDict['circuitTime'] = round(circuitTime)
     retDict['racePos'] = C.S.d['racePos']
-    retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2)
     retDict['lapsTime'] = lapsTime
-    retDict['minLap'] = min(lapsTime)
+    retDict['lapsNum'] = lapsNum
+    retDict['damage'] = C.S.d['damage']
+    # retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2) if len(lapsMeanSpeed)!= 0 else 0
+    
+    
     # print('\n ---------------------------------------------------------------')
     # print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
     # print('|---------------------------------------------------------------|')
@@ -718,8 +734,6 @@ def run(trackName,stage,steps,port):
     # print(' ---------------------------------------------------------------\n')
     # print(C.S.d)
     # print(' ---------------------------------------------------------------')
-
-    score = scoreAssignment(numLaps, circuitTime, carDamage, retDict['racePos'])
 
     return retDict
 
