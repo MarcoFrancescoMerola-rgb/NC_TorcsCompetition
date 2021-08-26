@@ -34,7 +34,7 @@ def loadTorcs(trackName,trackPort,trackMode):
     #                          "-nofuel", "-nodamage","> ServerOutput.txt"],
     #                     stdout=subprocess.PIPE, encoding='utf-8').stdout
 
-    command = ("torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+f"/{trackMode}"+ f"/race{port}.xml "+
+    command = ("../torcs-1.3.7/BUILD/bin/torcs -r " +os.getcwd()+ f"/Tracks/{trackName}"+f"/{trackMode}"+ f"/race{port}.xml "+
     "-nofuel -t 1000000000" +f"> torcsOutput{trackPort}.txt")
     #print(command)
     os.system(command)

@@ -11,6 +11,4 @@ def sendEmail():
     mail.sendmail('natcompgruppo1@gmail.com','d.spigapiena@studenti.unisa.it',content) 
     mail.sendmail('natcompgruppo1@gmail.com','m.merola31@studenti.unisa.it',content) 
     mail.close()
-    print("OK")
-
-sendEmail()
+    print("Email sent")
