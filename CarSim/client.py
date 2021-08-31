@@ -6,6 +6,7 @@ import math
 from CarSim import snakeoil
 import sys
 import statistics
+import numpy as np
 
 #################### GLOBAL VARIABLE #####################
 T = None
@@ -441,8 +442,12 @@ def throttle_control(P,ai,ts,sx,sl,sy,ang,steer):
             ts=P['fullstmaxsx']
         else:
             ts= min(ts,okmaxspeed4steer)
-        tooslow= ts-sx 
-    ao= 2 / (1+math.exp(-tooslow)) -1
+        tooslow= ts-sx
+    ao= 2 / (1+np.exp(-tooslow)) -1
+    # try:
+    #     ao= 2 / (1+math.exp(-tooslow)) -1
+    # except Exception:
+    #     ao = 0.9
     ao-= abs(sl) * P['slipdec'] 
     spincut= P['spincutint']-P['spincutslp']*abs(sy)
     spincut= snakeoil.clip(spincut,P['spincutclip'],1)
@@ -662,7 +667,7 @@ def initialize_car(c):
 # try to load tracks, start run on them and 
 # return a dictionary containing parameters such as: 
 # number of laps, car damage, circuit time, race position. 
-def run(trackName,stage,steps,port):
+def run(trackName,stage,steps,port,mode):
     global T
 
     final_steps =0
@@ -686,31 +691,45 @@ def run(trackName,stage,steps,port):
     lapsTime =[]
     lapsMeanSpeed = []
     for step in range(C.maxSteps,0,-1):
-        C.get_servers_input()
-        drive(C,step)
-        C.respond_to_server()
-        final_steps+=1
-        if C.S.d['curLapTime'] == prevTime:
-            sameTimeFlag += 1
-            if sameTimeFlag > 10: break
-        else:
-            if C.S.d['curLapTime'] < prevTime:
-                lapsNum+=1
-                lapsTime.append(prevTime)
-                circuitTime += prevTime
-                lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))
+        try:
+            C.get_servers_input()
+            drive(C,step)
+            C.respond_to_server()
+            final_steps+=1
+            if C.S.d['curLapTime'] == prevTime:
+                sameTimeFlag += 1
+                if sameTimeFlag > 10:
+                    print('curLapTime uguale per 10 volte')
+                    if mode == "Solo" and lapsNum <2:
+                        lapsNum+=1
+                        lapsTime.append(prevTime)
+                        circuitTime += prevTime
+                        lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))
+                    break
+            else:
+                if C.S.d['curLapTime'] < prevTime:
+                    lapsNum+=1
+                    lapsTime.append(prevTime)
+                    circuitTime += prevTime
+                    lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))
+                sameTimeFlag= 0
             prevTime = C.S.d['curLapTime']
-            sameTimeFlag= 0
+        except Execution:
+            print("errore")
     if not C.stage:  
         T.write_track(C.trackname) 
     C.R.d['meta']= 1
     C.respond_to_server()
     C.shutdown()
     retDict = {}
-    if lapsNum ==0:
-        print('No laps completed in this track')
+    if ( mode == 'Competitive' and lapsNum <10) or ( mode == 'Solo' and lapsNum <2):
+        if lapsNum ==0:
+            print('No laps completed in this track')
         retDict['minLap'] = None
-        retDict['circuitTime'] = float("inf")
+        if mode == 'Competitive':
+            retDict['circuitTime'] = float("10000")+round(circuitTime)+ (1000* (10-lapsNum))
+        if mode == 'Solo':
+            retDict['circuitTime'] = float("10000")+round(circuitTime)+ (1000* (2-lapsNum))
     else:
         retDict['minLap'] = min(lapsTime)
         retDict['circuitTime'] = round(circuitTime)
@@ -718,9 +737,8 @@ def run(trackName,stage,steps,port):
     retDict['lapsTime'] = lapsTime
     retDict['lapsNum'] = lapsNum
     retDict['damage'] = C.S.d['damage']
-    # retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2) if len(lapsMeanSpeed)!= 0 else 0
-    
-    
+    retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2) if len(lapsMeanSpeed)!= 0 else 0
+    retDict['finalSteps']= final_steps
     # print('\n ---------------------------------------------------------------')
     # print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
     # print('|---------------------------------------------------------------|')

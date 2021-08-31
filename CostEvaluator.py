@@ -12,8 +12,8 @@ import statistics
 from printer import print as pt
 
 #################### GLOBAL VARIABLE #####################
-trackMode = ["Solo"]#["Solo","Competitive"]
-tracksList = ["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
+trackMode = ["Solo"] #["Solo","Competitive"]
+tracksList = ["Forza"]#["Forza", "CG-Track-2", "E-Track-3", "Wheel-1"]
 serverTrackPorts = {"Forza":3001,"CG-Track-2":3002,
                     "E-Track-3":3003,"Wheel-1":3004}
 returnValues = {"Forza":None,"CG-Track-2":None,
@@ -41,11 +41,11 @@ def loadTorcs(trackName,trackPort,trackMode):
 
 # load a client instance with specific track parameters
 # returns results after race ending
-def loadClient(particle,trackName,port):
+def loadClient(particle,trackName,port,mode):
     stage = 1 # 0=Warm-up, 1=Qualifying 2=Race, 3=unknown <Default=3> 
-    steps = 100000
+    steps = 200000
     os.chdir(project_dir)
-    result = client.run(trackName,stage,steps,port)
+    result = client.run(trackName,stage,steps,port,mode)
     return result
 
 # starts a simulation given a track settings
@@ -57,18 +57,22 @@ def startSimulation(trackName,trackPort,particle):
     clientResult= []
     
     for index, mode in enumerate(trackMode):
-        pt(f"Starting track {trackName} in {mode}")
+        #pt(f"Starting track {trackName} in {mode}")
         torcs_thread = threading.Thread(target=loadTorcs,args=[trackName,trackPort,mode])
         torcs_thread.start()
 
         time.sleep(0.3)
         #loading client instance
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(loadClient, particle,trackName,trackPort)
+            future = executor.submit(loadClient, particle,trackName,trackPort,mode)
             as_completed(future)
             clientResult.append(future.result())
         
         torcs_thread.join()
+    # pt(f"position: {clientResult[0]['racePos']}")
+    # pt(f"circuitTime: {clientResult[0]['circuitTime']}")
+    # pt(f"damage: {clientResult[0]['damage']}")
+    pt(f"{clientResult[0]}")
     score = perMoreThanOneTrackScore(clientResult,trackMode)
 
     return score
@@ -103,7 +107,7 @@ def evaluateParticleCost(particle, paramsName):
     with open('./CarSim/tmp_params','w') as json_file:
         json.dump(jsonParams,json_file)
     pt("--------------------------------------------------")
-    pt('--------------------------------------------------\n\t\tRUNNING TRACK\n')
+    # pt('--------------------------------------------------\n\t\tRUNNING TRACK\n')
     tmp = evaluate(particle)
 
     return tmp
@@ -112,15 +116,20 @@ def evaluateParticleCost(particle, paramsName):
 # stats
 def singleTrackScore(raceStats,raceMode):
     finalScore= 0
-    minTime = 0
-    maxTime = 360 if raceMode == "Solo" else 3600
-    # for raceStats in stats:
-    #     pass
-    # return finalScore
-    positionScore = (raceStats["racePos"]) * 1000 -999
-    timeScore     = ((raceStats['circuitTime'] - minTime) /(maxTime - minTime))
-    damageScore   = raceStats['damage']
-    finalScore    = (positionScore * timeScore) + damageScore
+    minTime = 10 #30 e 360 # 10 420
+    maxTime = 420 if raceMode == "Solo" else 3600
+
+    # first valuation
+    # positionScore = (raceStats["racePos"]) * 1000 #-999
+    # timeScore     = ((raceStats['circuitTime'] - minTime) /(maxTime - minTime))
+    # damageScore   = raceStats['damage']
+    # finalScore    = (positionScore * timeScore) + damageScore
+
+    # second function
+    timeScore     = raceStats['circuitTime']
+    # every 100 dmg 5 penality seconds are added
+    damageScore   = int(raceStats['damage']/100) * 1
+    finalScore    = raceStats['circuitTime'] #+ damageScore
 
     return finalScore
 

@@ -3,7 +3,7 @@ import smtplib
 
 ####################### FUNCTION ########################
 def sendEmail():
-    content = ("Screen Terminato.\n")
+    content = ("Addestramento terminato.\nControllare i parametri!\n")
     mail = smtplib.SMTP('smtp.gmail.com',587)
     mail.ehlo()
     mail.starttls()
