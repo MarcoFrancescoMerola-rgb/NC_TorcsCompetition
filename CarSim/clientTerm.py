@@ -3,12 +3,11 @@
 import os
 import sys
 import math
-from CarSim import snakeoil
+import snakeoil
 import sys
 import statistics
 import numpy as np
-from printer import print as pt
-
+import json
 #################### GLOBAL VARIABLE #####################
 T = None
 target_speed= 0 
@@ -673,13 +672,14 @@ def run(trackName,stage,steps,port,mode,jsonParams):
 
     final_steps =0
     T= Track()
-    C= snakeoil.Client(f='./CarSim/tmp_params', t=trackName, s=stage,maxSteps=steps,p=port)
+    C= snakeoil.Client(f='./tmp_params', t=trackName, s=stage,maxSteps=steps,p=port)
     C.P = jsonParams
     if C.stage == 1 or C.stage == 2:
         try:
             T.load_track(C.trackname)
-        except:
+        except Exception as ex:
             print("Could not load the track: {C.trackname}")
+            print(ex)
             sys.exit()
         #print("Track loaded!")
     initialize_car(C)
@@ -770,10 +770,34 @@ def run(trackName,stage,steps,port,mode,jsonParams):
     # print(' ---------------------------------------------------------------\n')
     # print(C.S.d)
     # print(' ---------------------------------------------------------------')
-
+    print(retDict)
     return retDict
 
+def loadJsonParams(path):
+    f = open(path)
+    parameters = json.load(f)
+    f.close()
+    return parameters
+
 if __name__ == "__main__":
+    trackName='Wheel-1' #CG-Track-2 #E-Track-3 #Forza #Wheel-1
+    stage = 0
+    steps=1000000
+    port=3001
+    mode="Solo"
+    path= "./tmp_params" #"./default_parameters_noMeta" #"../0Res/1_1.2_0.7298/bestpos.csv"
+    path11="../0Res/1_1.2_0.7298/bestpos11.csv"
+    param_path = "./tmp_params"
+    parameters = loadJsonParams(param_path)
+    paramsName = [paramName for paramName in parameters.keys()]
+    particle=None
+    pfile= open(path,'r')
+    jsonParams= json.load(pfile)
+    # with open(path,'rb') as f:
+    #     particle = np.loadtxt(f)
+    # iterator = zip(paramsName, particle)
+    # jsonParams = dict(iterator)
+    run(trackName,stage,steps,port,mode,jsonParams)
     pass
 
     #global stage, trackName,steps

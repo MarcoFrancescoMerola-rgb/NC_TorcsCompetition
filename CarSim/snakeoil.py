@@ -231,15 +231,17 @@ class Client():
                 sockdata,addr= self.so.recvfrom(1024)
                 sockdata = sockdata.decode('utf-8')
             except socket.error as emsg:
-                print ('.',)
+                pass
+                #print ('.',)
+                #print(emsg)
                 #print "Waiting for data on %d.............." % self.port
             if '***identified***' in sockdata:
                 print( "Client connected on %d.............." % self.port)
                 continue
             elif '***shutdown***' in sockdata:
-                print (("Server has stopped the race on %d. "+
-                        "You were in %d place.") %
-                        (self.port,self.S.d['racePos']))
+                # print (("Server has stopped the race on %d. "+
+                #         "You were in %d place.") %
+                #         (self.port,self.S.d['racePos']))
                 self.shutdown()
                 return
             elif '***restart***' in sockdata:
@@ -274,8 +276,8 @@ class Client():
        #       % (self.maxSteps,self.port))
         self.so.close()
         self.so= None
-        print('distRaced: ', self.S.d['distRaced'])
-        sys.exit() # No need for this really.
+        #print('distRaced: ', self.S.d['distRaced'])
+        #sys.exit() # No need for this really.
 
 class ServerState():
     '''What the server is reporting right now.'''
@@ -289,7 +291,13 @@ class ServerState():
         sslisted= self.servstr.strip().lstrip('(').rstrip(')').split(')(')
         for i in sslisted:
             w= i.split(' ')
-            self.d[w[0]]= destringify(w[1:])
+            supportVector=[]
+            if len(w)> 2:
+                supportVector = [float(w[i]) for i in range(1,len(w))]
+                self.d[w[0]] = supportVector
+            else:
+                self.d[w[0]] = float(w[1])            
+            #self.d[w[0]]= destringify(w[1:])
 
     def __repr__(self):
         # Comment the next line for raw output:
@@ -557,7 +565,7 @@ def drive_example(c):
 # ================ MAIN ================
 if __name__ == "__main__":
     C= Client()
-    for step in xrange(C.maxSteps,0,-1):
+    for step in range(C.maxSteps,0,-1):
         C.get_servers_input()
         drive_example(C)
         C.respond_to_server()

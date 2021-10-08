@@ -11,5 +11,11 @@ __pycache__/
 venv/
 tmp_params
 *.trackinfo
-#carsim
-#CarSim/*
+*.save
+SaveResults/
+0Res/
+best_hyp
+best_post
+bestParameters
+results/
+SavedResults/
