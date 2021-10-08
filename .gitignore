@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.txt
+!requirements.txt
+*.log
+.vs/
+.vscode/
+.idea/
+venv/
+tmp_params
+*.trackinfo
+*.save
+SaveResults/
+0Res/
+best_hyp
+best_post
+bestParameters
+results/
+SavedResults/
