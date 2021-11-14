@@ -222,6 +222,7 @@ class Client():
             sys.exit(-1)
 
     def get_servers_input(self):
+        socketErrorCounter =0
         '''Server's input is stored in a ServerState object'''
         if not self.so: return
         sockdata= str()
@@ -231,6 +232,12 @@ class Client():
                 sockdata,addr= self.so.recvfrom(1024)
                 sockdata = sockdata.decode('utf-8')
             except socket.error as emsg:
+                socketErrorCounter+=1
+                #print(self.maxSteps)
+                if socketErrorCounter>=0:
+                    print("Error on server receive")
+                    #self.shutdown()
+                    return
                 pass
                 #print ('.',)
                 #print(emsg)

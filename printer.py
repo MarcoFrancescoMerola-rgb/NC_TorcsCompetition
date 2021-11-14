@@ -6,14 +6,14 @@ FILENAME = ['out.txt','bestParameters']
 pr = print
 
 ######################## FUNCTION ########################
-def cleanFile():
-    with open(FILENAME[0],'w') as f:
+def cleanFile(fname):
+    with open(fname,'w') as f:
         f.write('')
         pass
 
-def print(string):
+def print(fname,string):
     pr(string)
-    with open(FILENAME[0],'a') as f:
+    with open(fname,'a') as f:
         f.write("\n"+string)
 
 def jsonFileWriter(param):
@@ -42,7 +42,7 @@ def loadJsonParams(path):
 
 if __name__ == "__main__":
     #pass
-    path  = "./0Res/1.5_1.5_0.7298"
+    path  = "./0Res/1_0.6_0.7298"
     array = np.loadtxt(path+'/bestpos.csv', delimiter=',')
     param_path = "./test_parameters"
     parameters = loadJsonParams(param_path)

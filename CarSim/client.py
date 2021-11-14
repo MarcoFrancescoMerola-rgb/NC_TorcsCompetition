@@ -686,6 +686,9 @@ def run(trackName,stage,steps,port,mode,jsonParams):
     C.S.d['stucktimer']= 0
     C.S.d['targetSpeed']= 0
     prevTime = float("-Inf")
+    position = 6
+    positiveOvertaking = 0
+    negativeOvertaking = 0
     sameTimeFlag= 0
     lapsNum =0
     circuitTime= 0 
@@ -729,22 +732,27 @@ def run(trackName,stage,steps,port,mode,jsonParams):
                     circuitTime += prevTime
                     lapsMeanSpeed.append(round((T.laplength/prevTime) *3.6,2))
                 sameTimeFlag= 0
-            
+            actualPos = C.S.d['racePos']
+            if actualPos < position:
+                positiveOvertaking +=1
+            elif actualPos > position:
+                negativeOvertaking +=1
+            position = actualPos
             prevTime = C.S.d['curLapTime']
         except Exception:
-            print("errore")
+            print("errore client carsim")
     if not C.stage:  
         T.write_track(C.trackname) 
     C.R.d['meta']= 1
     C.respond_to_server()
     C.shutdown()
-    retDict = {}
-    if ( mode == 'Competitive' and lapsNum <10) or ( mode == 'Solo' and lapsNum <2):
+    retDict = {}                    #TODO: riporta a 10 i lapsnum
+    if ( mode == 'Competitive' and lapsNum <5) or ( mode == 'Solo' and lapsNum <2):
         if lapsNum ==0:
             print('No laps completed in this track')
         retDict['minLap'] = None
-        if mode == 'Competitive':
-            retDict['circuitTime'] = float("10000")+round(circuitTime)+ (1000* (10-lapsNum))
+        if mode == 'Competitive':                             #TODO: riporta a 10 i lapsnum
+            retDict['circuitTime'] = float("10000")+round(circuitTime)+ (1000* (5-lapsNum))
         if mode == 'Solo':
             retDict['circuitTime'] = float("10000")+round(circuitTime)+ (1000* (2-lapsNum))
     else:
@@ -753,10 +761,13 @@ def run(trackName,stage,steps,port,mode,jsonParams):
     retDict['totalTimeOffTrack'] = totalTimeOffTrack
     retDict['racePos'] = C.S.d['racePos']
     retDict['lapsTime'] = lapsTime
-    retDict['lapsNum'] = lapsNum
     retDict['damage'] = C.S.d['damage']
     retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2) if len(lapsMeanSpeed)!= 0 else 0
     retDict['finalSteps']= final_steps
+    retDict['trackName']=trackName
+    retDict['lapsNum'] = lapsNum
+    retDict['positiveOvertaking'] = positiveOvertaking
+    retDict['negativeOvertaking'] = negativeOvertaking
     # print('\n ---------------------------------------------------------------')
     # print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
     # print('|---------------------------------------------------------------|')

@@ -31,7 +31,7 @@
     <attstr name="type" val="race"/>
     <attstr name="starting order" val="drivers list"/>
     <attstr name="restart" val="yes"/>
-    <attnum name="laps" val="10"/>
+    <attnum name="laps" val="5"/>
     <section name="Starting Grid">
       <attnum name="rows" val="2"/>
       <attnum name="distance to start" val="25"/>
@@ -72,9 +72,10 @@
       <attstr name="module" val="damned"/>
     </section>
 
+    
     <section name="6">
-      <attnum name="idx" val="2"/>
-      <attstr name="module" val="berniw3"/>
+      <attnum name="idx" val="0"/>
+      <attstr name="module" val="scr_server"/>
     </section>
 
     <section name="7">
@@ -88,10 +89,9 @@
     </section>
 
     <section name="9">
-      <attnum name="idx" val="0"/>
-      <attstr name="module" val="scr_server"/>
+      <attnum name="idx" val="2"/>
+      <attstr name="module" val="berniw3"/>
     </section>
-
   </section>
 
   <section name="Configuration">

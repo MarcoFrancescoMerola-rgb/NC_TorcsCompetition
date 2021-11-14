@@ -696,6 +696,8 @@ def run(trackName,stage,steps,port,mode,jsonParams):
     stopTimeOffTrack = 0
     isOffTrack= False
     for step in range(C.maxSteps,0,-1):
+        # if step%1000 == 0:
+        #     print(step)
         try:
             C.get_servers_input()
             drive(C,step)
@@ -757,6 +759,7 @@ def run(trackName,stage,steps,port,mode,jsonParams):
     retDict['damage'] = C.S.d['damage']
     retDict['meanSpeed'] = round(statistics.mean(lapsMeanSpeed),2) if len(lapsMeanSpeed)!= 0 else 0
     retDict['finalSteps']= final_steps
+    retDict['trackName']= trackName
     # print('\n ---------------------------------------------------------------')
     # print("| PARAMS\t\t| VALUES\t\t| MEASURE\t|")
     # print('|---------------------------------------------------------------|')
